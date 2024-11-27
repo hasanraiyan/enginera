@@ -44,7 +44,48 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            color: 'hsl(var(--foreground))',
+            pre: {
+              backgroundColor: 'hsl(var(--card))',
+              borderColor: 'hsl(var(--border))',
+              borderWidth: '1px',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              overflowX: 'auto',
+            },
+            code: {
+              backgroundColor: 'hsl(var(--card))',
+              padding: '0.2em 0.4em',
+              borderRadius: '0.25rem',
+              fontSize: '0.875em',
+            },
+            'p, ul, ol': {
+              marginBottom: '1em',
+            },
+            'ul, ol': {
+              paddingLeft: '1.5em',
+            },
+            blockquote: {
+              borderLeftColor: 'hsl(var(--primary))',
+              borderLeftWidth: '4px',
+              paddingLeft: '1em',
+              color: 'hsl(var(--muted-foreground))',
+            },
+            'h1, h2, h3, h4, h5, h6': {
+              color: 'hsl(var(--foreground))',
+              marginTop: '1.5em',
+              marginBottom: '0.5em',
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 };

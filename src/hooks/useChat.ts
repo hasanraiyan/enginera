@@ -30,12 +30,17 @@ export function useChat() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
         },
         body: JSON.stringify({
-          messages: [{ role: 'user', content }],
-          max_tokens: 1000,
-          temperature: 0.7,
           model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful AI assistant.' },
+            ...state.messages.map(msg => ({ role: msg.role, content: msg.content })),
+            { role: 'user', content }
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
         }),
       });
 
@@ -63,7 +68,7 @@ export function useChat() {
         error: error instanceof Error ? error.message : 'An error occurred',
       }));
     }
-  }, []);
+  }, [state.messages]);
 
   const clearChat = useCallback(() => {
     setState({

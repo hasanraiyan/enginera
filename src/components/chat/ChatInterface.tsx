@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { MessageSquare, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MessageSquare, X, Trash2 } from 'lucide-react';
 import { useChat } from '../../hooks/useChat';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
@@ -13,10 +13,17 @@ interface ChatInterfaceProps {
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose }) => {
   const { messages, isLoading, error, sendMessage, clearChat } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      const scrollContainer = scrollContainerRef.current;
+      const isAtBottom = scrollContainer && 
+        (scrollContainer.scrollHeight - scrollContainer.scrollTop <= scrollContainer.clientHeight + 100);
+
+      if (isAtBottom) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   }, [messages]);
 
@@ -24,64 +31,95 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      className="fixed bottom-4 right-4 w-full max-w-md bg-card border rounded-lg shadow-lg"
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="fixed bottom-4 right-4 w-full max-w-md bg-card border rounded-lg shadow-xl z-50 chat-window overflow-hidden"
     >
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b backdrop-blur-sm bg-background/50">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-primary" />
+          <div className="relative">
+            <MessageSquare className="w-5 h-5 text-primary" />
+            {isLoading && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+            )}
+          </div>
           <h2 className="font-semibold text-card-foreground">AI Assistant</h2>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={clearChat}
-            className="p-2 hover:bg-accent rounded-lg transition-colors duration-300"
+            className="p-2 hover:bg-destructive/10 rounded-lg transition-colors duration-300 group"
             aria-label="Clear chat"
           >
-            <MessageSquare className="w-4 h-4 text-muted-foreground" />
-          </button>
-          <button
+            <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onClose}
             className="p-2 hover:bg-accent rounded-lg transition-colors duration-300"
             aria-label="Close chat"
           >
             <X className="w-4 h-4 text-muted-foreground" />
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      <div className="h-[400px] overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8">
-            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-primary/20" />
-            <p>No messages yet. Start a conversation!</p>
-          </div>
-        ) : (
-          messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))
-        )}
-        {error && (
-          <div className="p-4 bg-destructive/10 text-destructive rounded-lg">
-            {error}
-          </div>
-        )}
-        {isLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground">
+      <div 
+        ref={scrollContainerRef}
+        className="h-[500px] overflow-y-auto p-4 space-y-4 chat-scrollbar"
+      >
+        <AnimatePresence mode="popLayout">
+          {messages.length === 0 ? (
             <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full"
-            />
-            Thinking...
-          </div>
-        )}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="text-center text-muted-foreground py-8"
+            >
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-primary/20" />
+              <p>How can I help you today?</p>
+            </motion.div>
+          ) : (
+            messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))
+          )}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="p-4 bg-destructive/10 text-destructive rounded-lg border border-destructive/20"
+            >
+              {error}
+            </motion.div>
+          )}
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center gap-3 text-muted-foreground p-4"
+            >
+              <div className="relative w-8 h-8">
+                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                <div className="relative w-full h-full rounded-full bg-primary/30 flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              </div>
+              <span>AI is thinking...</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t backdrop-blur-sm bg-background/50">
         <ChatInput onSend={sendMessage} isLoading={isLoading} />
       </div>
     </motion.div>

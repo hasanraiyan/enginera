@@ -13,7 +13,7 @@ export const ChatButton: React.FC<ChatButtonProps> = ({ onClick, isOpen }) => {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className={`fixed bottom-4 right-4 p-4 rounded-full shadow-lg ${
+      className={`fixed bottom-4 right-4 p-4 rounded-full shadow-lg z-50 ${
         isOpen ? 'bg-primary/10' : 'bg-primary'
       } transition-colors duration-300`}
     >
