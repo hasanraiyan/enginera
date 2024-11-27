@@ -1,6 +1,5 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User } from 'lucide-react';
 import { Message } from '../../types/chat';
 import { MessageContent } from './MessageContent';
 import { MessageAvatar } from './MessageAvatar';
