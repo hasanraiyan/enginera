@@ -76,7 +76,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
 
       <div 
         ref={scrollContainerRef}
-        className="flex-grow overflow-y-auto p-4 space-y-4"
+        className="flex-grow overflow-y-auto overflow-x-auto p-4 space-y-4"
       >
         <AnimatePresence mode="popLayout">
           {messages.length === 0 ? (
@@ -133,10 +133,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t backdrop-blur-sm bg-background/50">
+      <div className="p-2 sm:p-0 border-t backdrop-blur-sm bg-background/50">
         <ChatInput onSend={sendMessage} isLoading={isLoading} />
       </div>
     </motion.div>
   )
 }
-

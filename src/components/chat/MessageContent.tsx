@@ -28,10 +28,13 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
               />
             ),
             table: ({ node, ...props }) => (
-              <table {...props} className="table-auto border-collapse border border-gray-300">
-                {props.children}
-              </table>
+              <div className="overflow-x-auto">
+                <table {...props} className="table-auto border-collapse border border-gray-300 w-full">
+                  {props.children}
+                </table>
+              </div>
             ),
+
             th: ({ node, ...props }) => (
               <th {...props} className="border border-gray-300 px-4 py-2 font-semibold text-left">
                 {props.children}

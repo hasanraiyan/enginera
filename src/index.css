@@ -173,3 +173,17 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
 }
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px; /* Set the height of the scrollbar */
+  background-color: hsl(var(--background)); /* Matches the theme's background color */
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--primary) / 0.3); /* Use primary color for the scrollbar thumb */
+  border-radius: 4px; /* Add rounded corners to the thumb */
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--primary) / 0.5); /* Darken the thumb color on hover */
+}
