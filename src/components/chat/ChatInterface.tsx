@@ -1,33 +1,35 @@
-import React, { useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Trash2 } from 'lucide-react';
-import { useChat } from '../../hooks/useChat';
-import { ChatMessage } from './ChatMessage';
-import { ChatInput } from './ChatInput';
+"use client"
+
+import React, { useRef, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { MessageSquare, X, Trash2 } from 'lucide-react'
+import { useChat } from '../../hooks/useChat'
+import { ChatMessage } from './ChatMessage'
+import { ChatInput } from './ChatInput'
 
 interface ChatInterfaceProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose }) => {
-  const { messages, isLoading, error, sendMessage, clearChat } = useChat();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { messages, isLoading, error, sendMessage, clearChat } = useChat()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [])
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      const scrollContainer = scrollContainerRef.current;
-      const isAtBottom = scrollContainer && 
-        (scrollContainer.scrollHeight - scrollContainer.scrollTop <= scrollContainer.clientHeight + 100);
-
-      if (isAtBottom) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
+    if (isOpen) {
+      scrollToBottom()
     }
-  }, [messages]);
+  }, [isOpen, messages, scrollToBottom])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <motion.div
@@ -35,17 +37,20 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className="fixed bottom-4 right-4 w-full max-w-md bg-card border rounded-lg shadow-xl z-50 chat-window overflow-hidden"
+      className="fixed bottom-4 right-4 w-full max-w-md bg-card border rounded-lg shadow-xl z-50 overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chat-title"
     >
       <div className="flex items-center justify-between p-4 border-b backdrop-blur-sm bg-background/50">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <MessageSquare className="w-5 h-5 text-primary" />
+            <MessageSquare className="w-5 h-5 text-primary" aria-hidden="true" />
             {isLoading && (
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
             )}
           </div>
-          <h2 className="font-semibold text-card-foreground">AI Assistant</h2>
+          <h2 id="chat-title" className="font-semibold text-card-foreground">AI Assistant</h2>
         </div>
         <div className="flex items-center gap-2">
           <motion.button
@@ -55,7 +60,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
             className="p-2 hover:bg-destructive/10 rounded-lg transition-colors duration-300 group"
             aria-label="Clear chat"
           >
-            <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
+            <Trash2 className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" aria-hidden="true" />
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -64,14 +69,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
             className="p-2 hover:bg-accent rounded-lg transition-colors duration-300"
             aria-label="Close chat"
           >
-            <X className="w-4 h-4 text-muted-foreground" />
+            <X className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
           </motion.button>
         </div>
       </div>
 
       <div 
         ref={scrollContainerRef}
-        className="h-[500px] overflow-y-auto p-4 space-y-4 chat-scrollbar"
+        className="h-[500px] overflow-y-auto p-4 space-y-4"
       >
         <AnimatePresence mode="popLayout">
           {messages.length === 0 ? (
@@ -81,12 +86,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
               exit={{ opacity: 0, y: -20 }}
               className="text-center text-muted-foreground py-8"
             >
-              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-primary/20" />
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-primary/20" aria-hidden="true" />
               <p>How can I help you today?</p>
             </motion.div>
           ) : (
             messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+              <ChatMessage 
+                key={message.id} 
+                message={{
+                  ...message,
+                  role: message.role === "system" ? "assistant" : message.role
+                }} 
+              />
             ))
           )}
           {error && (
@@ -95,6 +106,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="p-4 bg-destructive/10 text-destructive rounded-lg border border-destructive/20"
+              role="alert"
             >
               {error}
             </motion.div>
@@ -105,6 +117,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="flex items-center gap-3 text-muted-foreground p-4"
+              aria-live="polite"
+              aria-atomic="true"
             >
               <div className="relative w-8 h-8">
                 <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
@@ -123,5 +137,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
         <ChatInput onSend={sendMessage} isLoading={isLoading} />
       </div>
     </motion.div>
-  );
-};
+  )
+}
+
