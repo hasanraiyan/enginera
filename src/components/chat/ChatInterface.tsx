@@ -33,11 +33,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      className="fixed bottom-4 right-4 w-full max-w-md bg-card border rounded-lg shadow-xl z-50 overflow-hidden"
+      initial={{ opacity: 0, y: '100%' }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: '100%' }}
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 md:inset-auto md:bottom-4 md:right-4 w-full md:w-[400px] h-full md:h-[600px] bg-card border rounded-t-lg md:rounded-lg shadow-xl z-50 flex flex-col"
       role="dialog"
       aria-modal="true"
       aria-labelledby="chat-title"
@@ -76,7 +76,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ isOpen, onClose })
 
       <div 
         ref={scrollContainerRef}
-        className="h-[500px] overflow-y-auto p-4 space-y-4"
+        className="flex-grow overflow-y-auto p-4 space-y-4"
       >
         <AnimatePresence mode="popLayout">
           {messages.length === 0 ? (
