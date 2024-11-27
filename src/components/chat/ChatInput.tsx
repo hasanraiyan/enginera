@@ -14,7 +14,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading }) => {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
+      textareaRef.current.style.height = `${newHeight}px`;
     }
   }, [message]);
 
@@ -23,11 +24,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading }) => {
     if (message.trim() && !isLoading) {
       onSend(message.trim());
       setMessage('');
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
+    <form onSubmit={handleSubmit} className="relative chat-input rounded-lg">
       <textarea
         ref={textareaRef}
         value={message}
@@ -39,7 +43,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading }) => {
           }
         }}
         placeholder="Type your message..."
-        className="w-full min-h-[50px] max-h-[200px] p-4 pr-12 bg-background border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-300"
+        className="w-full min-h-[50px] max-h-[200px] p-4 pr-12 bg-transparent rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-300 placeholder:text-muted-foreground/50"
         disabled={isLoading}
       />
       <motion.button
@@ -47,7 +51,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, isLoading }) => {
         whileTap={{ scale: 0.95 }}
         type="submit"
         disabled={!message.trim() || isLoading}
-        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-300"
+        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
       >
         <Send className="w-4 h-4" />
       </motion.button>
