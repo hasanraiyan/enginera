@@ -13,7 +13,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({ content }) => {
       <div className="prose prose-sm dark:prose-invert max-w-none">
         <ReactMarkdown
           components={{
-            pre: CodeBlock,
+            pre: ({ children, ...props }) => <CodeBlock children={children} {...props} />,
             code: ({ node, ...props }) => (
               <code {...props} className="bg-card px-1.5 py-0.5 rounded-md" />
             ),

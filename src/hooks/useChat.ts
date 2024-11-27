@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 // Define types
 type Role = 'user' | 'assistant' | 'system'
@@ -25,13 +25,29 @@ interface ChatResponse {
 }
 
 const API_URL = 'https://text.pollinations.ai/openai'
+const STORAGE_KEY = 'chat_history'
 
 export function useChat() {
-  const [state, setState] = useState<ChatState>({
-    messages: [],
-    isLoading: false,
-    error: null,
+  // Initialize state from localStorage if available
+  const [state, setState] = useState<ChatState>(() => {
+    const savedChat = localStorage.getItem(STORAGE_KEY)
+    return savedChat ? {
+      ...JSON.parse(savedChat),
+      isLoading: false,
+      error: null
+    } : {
+      messages: [],
+      isLoading: false,
+      error: null,
+    }
   })
+
+  // Save to localStorage whenever messages change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      messages: state.messages
+    }))
+  }, [state.messages])
 
   // Use useRef to store the latest messages without causing re-renders
   const messagesRef = useRef(state.messages)
@@ -108,6 +124,7 @@ export function useChat() {
       isLoading: false,
       error: null,
     })
+    localStorage.removeItem(STORAGE_KEY)
   }, [])
 
   return {
